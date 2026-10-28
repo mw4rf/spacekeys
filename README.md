@@ -2,117 +2,117 @@
 
 # SpaceKeys
 
-Un petit utilitaire de barre des menus pour piloter les **Spaces natifs de macOS** au clavier,
-en gardant **SIP activé**. Il complète un gestionnaire de fenêtres comme Amethyst.
+A small menu bar utility for controlling **native macOS Spaces** with the keyboard,
+while keeping **SIP enabled**. It complements a window manager such as Amethyst.
 
-## Raccourcis
+## Keyboard shortcuts
 
-| Touches | Action |
+| Keys | Action |
 | --- | --- |
-| **⌘1…9, ⌘0** | Aller au bureau 1…10 de l’écran sous le pointeur |
-| **⌘⇧1…9, ⌘⇧0** | Envoyer la fenêtre active au bureau 1…10 de son écran, sans la suivre |
+| **⌘1…9, ⌘0** | Switch to desktop 1…10 on the display under the pointer |
+| **⌘⇧1…9, ⌘⇧0** | Send the focused window to desktop 1…10 on its display, without following it |
 
-Sur AZERTY, utiliser les **positions de la rangée numérique** : `⌘&`, `⌘é`, etc.
-Maj sert à envoyer la fenêtre, pas à saisir un chiffre.
-Ces combinaisons prennent la place des raccourcis des applications pour les mêmes touches.
+On AZERTY keyboards, use the **physical positions of the number row**: `⌘&`, `⌘é`, etc.
+Shift sends the window; it is not needed to type a number.
+These combinations take precedence over application shortcuts using the same keys.
 
-## Construire
+## Building
 
-Prérequis : **macOS 27**, les outils en ligne de commande Apple avec Swift et Clang
-(`xcode-select --install` si nécessaire). La version actuelle est vérifiée sur Apple Silicon.
+Requirements: **macOS 27** and Apple's Command Line Tools with Swift and Clang
+(`xcode-select --install` if needed). The current version has been checked on Apple Silicon.
 
 ```sh
 ./build.sh
 ```
 
-Le script fabrique l’icône macOS depuis le PNG inclus, compile l’application,
-exécute les tests, puis signe et vérifie `build/SpaceKeys.app`.
-Tout fonctionne hors ligne, sans gestionnaire de paquets ni dépendance à télécharger.
+The script generates the macOS icon from the included PNG, compiles the application,
+runs the tests, then signs and verifies `build/SpaceKeys.app`.
+The entire build runs offline, with no package manager or dependencies to download.
 
-Pour installer dans votre dossier Applications personnel, après avoir quitté SpaceKeys :
+To install in your personal Applications folder, quit SpaceKeys first, then run:
 
 ```sh
 ./build.sh --install
 open ~/Applications/SpaceKeys.app
 ```
 
-La signature est locale par défaut. Une reconstruction peut demander de renouveler
-l’autorisation macOS. Si vous disposez d’une identité de signature Apple existante,
-vous pouvez la passer dans la variable `CODESIGN_IDENTITY`.
-Le script ne crée aucun certificat et ne modifie aucune protection du système.
+The app uses local ad hoc signing by default. Rebuilding may require renewing its
+macOS authorization. If you already have an Apple signing identity,
+you can supply it through the `CODESIGN_IDENTITY` environment variable.
+The script does not create certificates or change system security protections.
 
-## Première utilisation
+## Getting started
 
-1. Autoriser SpaceKeys dans Réglages Système → Confidentialité et sécurité →
-   **Contrôle de l’appareil et accès aux données** (anciennement Accessibilité).
-2. Dans la fenêtre SpaceKeys, choisir **Activer les raccourcis**.
-3. Garder activé Trackpad → Gestes supplémentaires →
-   **Balayer entre les applications en plein écran** : le mécanisme natif de saut en dépend.
-4. Dans Mission Control, désactiver le réarrangement automatique des Spaces pour garder des numéros stables.
+1. Authorize SpaceKeys in System Settings → Privacy & Security →
+   **Device Control & Data Access** (formerly Accessibility).
+2. In the SpaceKeys window, choose **Enable shortcuts** (`Activer les raccourcis` in the current French interface).
+3. Keep Trackpad → More Gestures →
+   **Swipe between full-screen applications** enabled: the native switching mechanism depends on it.
+4. In Mission Control, turn off automatic Space rearrangement to keep desktop numbers stable.
 
-La fenêtre montre l’état, l’autorisation, le bureau actif et les raccourcis.
-Les identifiants internes et le journal se trouvent dans **Détails techniques…**.
-Le menu de barre des menus permet de mettre en pause, quitter et choisir l’ouverture à la connexion
-(désactivée par défaut). Aucun service supplémentaire n’est installé.
+The window shows the current status, authorization, active desktop and shortcuts.
+Internal identifiers and the log location are available under **Technical details…** (`Détails techniques…`).
+The menu bar menu lets you pause, quit and enable launch at login
+(disabled by default). No additional service is installed.
 
-## Comportement et limites
+## Behavior and limitations
 
-- Les numéros suivent l’ordre des **bureaux ordinaires** dans Mission Control, indépendamment des identifiants internes.
-- Les Spaces plein écran comptent dans le trajet, sans recevoir de numéro de bureau ordinaire.
-- SpaceKeys ne crée, supprime ou réordonne aucun Space et ne redimensionne aucune fenêtre.
-- Les demandes de saut sont sérialisées ; seule la dernière destination attend en cas de frappes rapides.
-- Une courte stabilisation du Dock protège les gestes successifs.
-- Un échec est signalé : aucune simulation de raccourcis animés n’est lancée en remplacement.
-- Les fenêtres plein écran, dialogues actifs et fenêtres sur plusieurs Spaces sont refusés à l’envoi.
-- Chaque déplacement de fenêtre est confirmé en relisant son appartenance au Space cible.
-- Pas d’injection, de modification de SIP, d’accès réseau ni d’autorisation d’enregistrement de l’écran.
+- Numbers follow the order of **ordinary desktops** in Mission Control, independently of their internal identifiers.
+- Full-screen Spaces count toward the switching path but do not receive an ordinary desktop number.
+- SpaceKeys does not create, delete or reorder Spaces, or resize windows.
+- Switch requests are serialized; only the latest destination is queued when shortcuts are pressed rapidly.
+- A brief Dock settling period prevents successive gestures from overlapping.
+- Failures are reported: simulated shortcuts with animated transitions are never used as a fallback.
+- Full-screen windows, active dialogs and windows belonging to multiple Spaces cannot be sent.
+- Every window move is confirmed by reading its membership in the destination Space again.
+- No injection, SIP changes, network access or screen recording permission.
 
-**Compatibilité :** l’app utilise des interfaces privées de macOS 27.
-Leur fonctionnement peut changer lors d’une mise à jour. L’absence visuelle d’animation,
-les séquences rapides, plusieurs écrans et l’intégration Amethyst nécessitent des observations natives :
-les tests de compilation seuls ne les valident pas. Voir les résultats réels dans [VALIDATION.md](VALIDATION.md).
+**Compatibility:** the app uses private macOS 27 interfaces.
+Their behavior may change with system updates. Visually animation-free switching,
+rapid sequences, multiple displays and Amethyst integration require native observation:
+build checks alone do not validate them. See the actual results in [VALIDATION.md](VALIDATION.md).
 
 ## Diagnostics
 
 ```sh
-# Lecture seule, aucun changement de bureau ni enregistrement de raccourcis
+# Read-only: no desktop changes or shortcut registration
 build/SpaceKeys.app/Contents/MacOS/SpaceKeys --diagnose
 
-# Vérifier le cycle de vie du contrôleur et de son minuteur
+# Check the controller and timer lifecycle
 build/SpaceKeys.app/Contents/MacOS/SpaceKeys --lifecycle-test
 
-# Déplacer uniquement une fenêtre temporaire créée par l’app, puis la ramener
+# Move only a temporary window created by the app, then restore it
 build/SpaceKeys.app/Contents/MacOS/SpaceKeys --native-move-test
 ```
 
-Le dernier test est également accessible depuis le menu.
-Journal local : `~/Library/Logs/SpaceKeys.log` (états et identifiants, pas de titres de fenêtres).
+The last test is also available from the menu.
+Local log: `~/Library/Logs/SpaceKeys.log` (status and identifiers, not window titles).
 
-## Organisation
+## Project structure
 
-| Chemin | Contenu |
+| Path | Contents |
 | --- | --- |
-| `Sources/main.swift` | Application, raccourcis et opérations sur les Spaces |
-| `Sources/StatusWindow.swift` | Fenêtre native AppKit |
-| `Sources/Core.swift` | Modèle des bureaux et événements de geste |
-| `Sources/Bridge.c`, `Bridge.h` | Pont natif de lecture et déplacement |
-| `Tests/` | Contrôles du modèle et des événements sérialisés |
-| `Resources/AppIcon.png` | Icône originale avec transparence |
-| `docs/icon-generation.md` | Outil et prompt de création de l’icône |
-| `build.sh`, `Info.plist` | Construction et métadonnées macOS |
-| `Licenses/`, `SOURCES.txt` | Notices et références des sources tierces |
+| `Sources/main.swift` | Application, shortcuts and Space operations |
+| `Sources/StatusWindow.swift` | Native AppKit window |
+| `Sources/Core.swift` | Desktop model and gesture events |
+| `Sources/Bridge.c`, `Bridge.h` | Native bridge for reading Spaces and moving windows |
+| `Tests/` | Checks for the model and serialized events |
+| `Resources/AppIcon.png` | Original icon with transparency |
+| `docs/icon-generation.md` | Icon generation tool and prompt |
+| `build.sh`, `Info.plist` | Build script and macOS metadata |
+| `Licenses/`, `SOURCES.txt` | Third-party notices and source references |
 
-`build/` est ignoré par Git. Le dossier source peut être ajouté à un dépôt sans inclure les résultats de compilation.
+`build/` is ignored by Git. The source folder can be added to a repository without including build outputs.
 
 ## Provenance
 
-Le pont de déplacement adapte une partie de [gechr/WhichSpace](https://github.com/gechr/WhichSpace),
-sous MIT ; notice conservée dans `Licenses/WhichSpace-MIT.txt`.
-Le format des événements est également documenté par [joshuarli/iss](https://github.com/joshuarli/iss),
-sous 0BSD ; notice incluse. Les révisions étudiées figurent dans `SOURCES.txt`.
-L’analyse de [Spacetile](https://github.com/Spacetile/Spacetile.app) a éclairé les mécanismes ;
-aucun code sous sa licence propriétaire n’est incorporé.
-L’icône a été créée avec l’outil intégré OpenAI image generation ; son prompt est conservé.
+The window-move bridge adapts part of [gechr/WhichSpace](https://github.com/gechr/WhichSpace),
+under the MIT license; its notice is preserved in `Licenses/WhichSpace-MIT.txt`.
+The event format is also documented by [joshuarli/iss](https://github.com/joshuarli/iss),
+under 0BSD; its notice is included. The revisions studied are listed in `SOURCES.txt`.
+Analysis of [Spacetile](https://github.com/Spacetile/Spacetile.app) informed the mechanisms used;
+no code covered by its proprietary license is incorporated.
+The icon was created with OpenAI's built-in image generation tool; the prompt is included.
 
-Pour désinstaller : désactiver l’ouverture à la connexion si nécessaire, quitter SpaceKeys,
-puis supprimer l’application. Le journal peut être supprimé séparément.
+To uninstall: disable launch at login if necessary, quit SpaceKeys,
+then delete the application. The log can be deleted separately.
